@@ -1,0 +1,27 @@
+7 parole
+12 occorrenze
+la 4
+capra 2
+panca 2
+campa 1
+crepa 1
+sopra 1
+sotto 1
+7 coppie a distanza 1
+6 coppie a distanza 2
+2 coppie a distanza 3
+(campa,capra) 1
+(campa,la) 2
+(campa,sotto) 1
+(capra,crepa) 1
+(capra,la) 1
+(capra,panca) 2
+(capra,sotto) 2
+(crepa,la) 2
+(la,panca) 1
+(la,sopra) 1
+(la,sotto) 1
+(panca,sopra) 2
+(panca,sotto) 2
+lunghezza media 1.38
+diametro 2
