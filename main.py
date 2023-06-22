@@ -8,7 +8,16 @@ def carica_parole(nome_file):
             linea = linea.translate(str.maketrans('', '', string.punctuation))  # Rimuovi la punteggiatura
             parole_linea = linea.strip().split()
             parole_linea = [parola.lower() for parola in parole_linea]  # Rendi tutte le parole in minuscolo
-            parole.extend(parole_linea)
+            parole_modificate = []
+            for parola in parole_linea:
+                if '-' in parola:
+                    parole_spezzate = parola.replace('-', ' ')
+                    parole_spezzate.split()
+                    parole_modificate.extend(parole_spezzate)
+                    print(parole_spezzate)
+                else:
+                    parole_modificate.append(parola)
+            parole.extend(parole_modificate)
     return parole
 
 
@@ -31,6 +40,26 @@ def calcola_distanza(parole):
                 parole_esistenti.add((parola1, parola2))
 
         return coppie_distanze_univoche
+
+def ordina_elementi(array_coppie):  # ordina le parole di ogni coppia
+    n = len(array_coppie)
+
+    for i in range(n):  # ordina parole array
+        p1, p2, num = array_coppie[i]
+        if p1 > p2:
+            array_coppie[i] = (p2, p1, num)
+
+    for i in range(n - 1):  # ordina elementi array valutando prima e seconda parola tramite selection sort
+        min_index = i
+        for j in range(i + 1, n):
+            if array_coppie[j][0] < array_coppie[min_index][0] or (
+                        array_coppie[j][0] == array_coppie[min_index][0] and array_coppie[j][1] <
+                        array_coppie[min_index][1]):
+                min_index = j
+
+        array_coppie[i], array_coppie[min_index] = array_coppie[min_index], array_coppie[i]
+
+    return array_coppie
 
 
 def main():
@@ -66,18 +95,56 @@ def main():
     print("posizioni")
     print(posizioni)
 
-    coppie_distanze = calcola_distanza(frase)
-    conteggio_distanze = {1: 0, 2: 0, 3: 0}
+    # coppie_distanze = calcola_distanza(frase)
 
-    for coppia in coppie_distanze:
-        parola1, parola2, distanza = coppia
-        if distanza <= 3 and parola1 != parola2:
-            print(parola1 + ",", parola2 + ",", distanza)
-            conteggio_distanze[distanza] += 1
+    array_coppie = []
 
-    print("Numero di coppie a distanza 1:", conteggio_distanze[1], "coppie")
-    print("Numero di coppie a distanza 2:", conteggio_distanze[2], "coppie")
-    print("Numero di coppie a distanza 3:", conteggio_distanze[3], "coppie")
+    for i in range(len(frase)):
+        for j in range(i + 1, len(frase)):
+            p1 = frase[i]
+            p2 = frase[j]
+            distanza = abs(i - j)
+            if str(p1) != str(p2):
+                if distanza <= 3:
+                    coppia_presente = False
+                    for coppia in array_coppie:
+                        if (coppia[0] == p1 and coppia[1] == p2) or (coppia[0] == p2 and coppia[1] == p1):
+                            coppia_presente = True
+                            break
+                    if not coppia_presente:
+                        array_coppie.append((p1, p2, distanza))
+                    else:
+                        for k in range(len(array_coppie)):
+                            if (array_coppie[k][0] == p1 and array_coppie[k][1] == p2) or (
+                                    array_coppie[k][0] == p2 and array_coppie[k][1] == p1):
+                                if array_coppie[k][2] > distanza:
+                                    array_coppie[k] = (p1, p2, distanza)
+                                break
+
+    print(array_coppie)
+
+    distanza1, distanza2, distanza3 = 0, 0, 0
+    for coppia in array_coppie:
+        distanza = coppia[2]
+        if distanza == 1:
+            distanza1 += 1
+        elif distanza == 2:
+            distanza2 += 1
+        elif distanza == 3:
+            distanza3 += 1
+
+    print(f'{distanza1} coppie a distanza 1')
+    print(f'{distanza2} coppie a distanza 2')
+    print(f'{distanza3} coppie a distanza 3')
+
+    array_coppie_ordinate = ordina_elementi(array_coppie)
+
+    array_due = []
+    for element in array_coppie_ordinate:
+        if element[2] < 3:
+            array_due.append(element)
+            print("(" + str(element[0]) + "," + str(element[1]) + ") " + str(element[2]))
+    print(len(array_due))
 
 
 if __name__ == '__main__':
