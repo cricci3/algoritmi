@@ -1,5 +1,23 @@
 import string
 
+def ordina_elementi(array_coppie): # ordina le parole di ogni coppia
+    n = len(array_coppie)
+
+    for i in range(n): # ordina parole array
+        p1, p2, num = array_coppie[i]
+        if p1 > p2:
+            array_coppie[i] = (p2, p1, num)
+
+    for i in range(n - 1): # ordina elementi array valutando prima e seconda parola tramite selection sort
+        min_index = i
+        for j in range(i + 1, n):
+            if array_coppie[j][0] < array_coppie[min_index][0] or (array_coppie[j][0] == array_coppie[min_index][0] and array_coppie[j][1] < array_coppie[min_index][1]):
+                min_index = j
+
+        array_coppie[i], array_coppie[min_index] = array_coppie[min_index], array_coppie[i]
+
+    return array_coppie
+
 
 def carica_parole(nome_file):
     parole = []
@@ -92,8 +110,8 @@ def main():
     for parola in frase:
         posizioni.append([parola, count])
         count += 1
-    print("posizioni")
-    print(posizioni)
+    # print("posizioni")
+    # print(posizioni)
 
     # coppie_distanze = calcola_distanza(frase)
 
@@ -121,7 +139,7 @@ def main():
                                     array_coppie[k] = (p1, p2, distanza)
                                 break
 
-    print(array_coppie)
+    # print(array_coppie)
 
     distanza1, distanza2, distanza3 = 0, 0, 0
     for coppia in array_coppie:
@@ -143,8 +161,91 @@ def main():
     for element in array_coppie_ordinate:
         if element[2] < 3:
             array_due.append(element)
+            # print("(" + str(element[0]) + "," + str(element[1]) + ") " + str(element[2]))
+    # print(len(array_due))
+
+    array_coppie_ordinate = ordina_elementi(array_coppie)
+    # print(array_coppie_ordinate)
+
+    array_due = []
+    for element in array_coppie_ordinate:
+        if element[2] < 3:
+            array_due.append(element)
             print("(" + str(element[0]) + "," + str(element[1]) + ") " + str(element[2]))
-    print(len(array_due))
+    # print(len(array_due))
+
+    grafo = []
+    parole_frase = []
+
+    for coppia in array_coppie_ordinate:
+        if coppia[0] not in parole_frase:
+            parole_frase.append(coppia[0])
+        if coppia[1] not in parole_frase:
+            parole_frase.append(coppia[1])
+
+    # print(parole_frase)
+
+    for parola1 in parole_frase:
+        for parola2 in parole_frase:  # permutazione di tutte le coppie di parole
+            if parola1 != parola2:
+                # print(parola1, parola2)
+                presente = False
+                for element in grafo:
+                    # controlla che la coppia non sia già nel grafo
+                    if (element[0] == parola1 and element[1] == parola2) or (
+                            element[0] == parola2 and element[1] == parola1):
+                        # print(parola1+" "+parola2+" già presente")
+                        presente = True
+                        break
+
+                if not presente:
+                    # print(parola1+" "+parola2+" non presente")
+                    vicini = []  # array per salvare parole adiacenti
+                    adiacenti = False
+                    for coppia in array_coppie_ordinate:
+                        # controlla se le due parole sono adiacenti (distanza = 1)
+                        if (coppia[0] == parola1 and coppia[1] == parola2 and coppia[2] == 1) or (
+                                coppia[0] == parola2 and coppia[1] == parola1 and coppia[2] == 1):
+                            grafo.append([parola1, parola2, coppia[2]])
+                            # print("("+parola1+", "+parola2+") parole adiacenti, distanza "+str(coppia[2])+", aggiunta "+str(coppia)+" a grafo")
+                            adiacenti = True
+                            break
+
+                    if not adiacenti:
+                        # se le parole non sono adiacenti colleziona i vicini di parola1
+                        for x in array_coppie_ordinate:
+                            # if coppia[0] == parola1 and coppia[2] > 1:
+                            if x[0] == parola1:  # cerca elementi del tipo (p1, _, _)
+                                # print(x, x[2])
+                                vicini.append(x[1])  # aggiunge _ nei vicini
+                                # print("("+x[0]+", "+x[1]+") vicino > "+x[1])
+
+                            elif x[1] == parola1:  # cerca elementi del tipo (_, p1, _)
+                                # print(x, x[2])
+                                vicini.append(x[0])  # aggiunge _ nei vicini
+                                # print("("+x[0]+", "+x[1]+") vicino > "+x[0])
+
+                        min_dist = 1000
+                        for x in vicini:
+                            for coppia in array_coppie_ordinate:
+                                if (coppia[0] == x and coppia[1] == parola2) or (
+                                        coppia[0] == parola2 and coppia[1] == x):
+                                    if coppia[2] < min_dist:
+                                        min_dist = coppia[2]
+
+                        grafo.append([parola1, parola2, 1 + min_dist])
+
+    # print(grafo)
+
+    somma = 0
+    max_dist = 0
+    for element in grafo:
+        somma += element[2]
+        if element[2] > max_dist:
+            max_dist = element[2]
+
+    print("lunghezza media " + str(somma / len(grafo)))
+    print("diametro " + str(max_dist))
 
 
 if __name__ == '__main__':
